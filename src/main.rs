@@ -10,28 +10,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 
-use chrono::prelude::*;
-use tui::{
-    layout::{Constraint, Layout},
-    style::{Modifier, Style},
-    text::{Span, Spans},
-    widgets::{Block, Borders, Paragraph, Tabs},
-};
-
-#[derive(Debug, Clone)]
-struct Pet {
-    id: u64,
-    name: String,
-    category: String,
-    age: usize,
-    created_at: DateTime<Utc>,
-}
-
-#[derive(Debug)]
-enum Error {
-    ReadDBError,
-    ParseDBError,
-}
+use tui::{layout::*, style::*, text::*, widgets::*};
 
 enum Event<I> {
     Input(I),
@@ -71,10 +50,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
 
-            if last_tick.elapsed() >= tick_rate {
-                if let Ok(_) = tx.send(Event::Tick) {
-                    last_tick = Instant::now();
-                }
+            if last_tick.elapsed() >= tick_rate || tx.send(Event::Tick).is_ok() {
+                last_tick = Instant::now();
             }
         }
     });
@@ -83,7 +60,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     crossterm::execute!(io::stdout(), crossterm::terminal::EnterAlternateScreen)?;
     let backend = tui::backend::CrosstermBackend::new(stdout);
     let mut terminal = tui::Terminal::new(backend)?;
-    // terminal.clear()?;
 
     let menu_titles = vec!["Home", "Pets", "Add", "Delete", "Quit"];
     let mut active_menu_item = MenuItem::Home;
