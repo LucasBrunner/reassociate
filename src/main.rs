@@ -17,7 +17,7 @@ enum Event<I> {
     Tick,
 }
 
-// comment
+// updated comment
 #[derive(Clone, Copy)]
 enum MenuItem {
     Home,
