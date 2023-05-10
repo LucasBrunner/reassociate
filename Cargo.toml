@@ -13,4 +13,3 @@ sqlx = { version = "0.6.3", features = ["runtime-async-std-rustls", "sqlite"] }
 tui = { version = "0.14", default-features = false, features = ['crossterm'] }
 async-std = "1.12.0"
 # crossterm = { version = "0.19" }
-
