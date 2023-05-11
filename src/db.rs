@@ -21,7 +21,13 @@ async fn db_exists(location: &str) -> DatabaseExistsResult {
     }
 }
 
-pub async fn db(location: &str) -> Option<Pool<Sqlite>> {
+pub enum GetDatabaseError {
+    Exists(DatabaseExistsResult),
+    Access,
+    Upgrade(),
+}
+
+pub async fn get_db(location: &str) -> Option<Pool<Sqlite>> {
     match db_exists(location).await {
         DatabaseExistsResult::CouldNotBeCreated => {
             println!("Database could not be found or created!");
@@ -31,7 +37,7 @@ pub async fn db(location: &str) -> Option<Pool<Sqlite>> {
         DatabaseExistsResult::Exists => println!("Database found!"),
     };
 
-    let db = match SqlitePool::connect(location).await {
+    let mut db = match SqlitePool::connect(location).await {
         Ok(db) => db,
         Err(_) => {
             println!("Could not connect to database!");
@@ -39,5 +45,8 @@ pub async fn db(location: &str) -> Option<Pool<Sqlite>> {
         }
     };
 
-    upgrade::upgrade_db(db).await
+    match upgrade::upgrade_db(&mut db).await {
+        Ok(_) => Some(db),
+        Err(_) => None,
+    }
 }

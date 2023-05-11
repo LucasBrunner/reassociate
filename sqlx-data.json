@@ -1,0 +1,33 @@
+{
+  "db": "SQLite",
+  "5c26a87aa889f47cd07c2d4d852ee79b63d344f1895a742efd01ba8e7330fc7a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            CREATE TABLE IF NOT EXISTS `Version` (\n                `version_number` INTEGER PRIMARY KEY NOT NULL\n            );\n            \n            CREATE TABLE IF NOT EXISTS `Article` (\n                `article_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n                `timestamp_created` BIGINT NOT NULL,\n                `timestamp_removed` BIGINT NOT NULL\n            );\n\n            CREATE TABLE IF NOT EXISTS `Element` (\n                `element_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n                `article_id` BIGINT UNSIGNED NOT NULL,\n                `element_type_id` BIGINT UNSIGNED NOT NULL,\n\n                FOREIGN KEY(`article_id`) REFERENCES `Article`(`article_id`),\n                FOREIGN KEY(`element_type_id`) REFERENCES `ElementType`(`element_type_id`)\n            );\n\n            CREATE TABLE IF NOT EXISTS `DataVersion` (\n                `data_version_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n                `element_id` BIGINT UNSIGNED NOT NULL,\n                `data_id` BIGINT UNSIGNED NOT NULL,\n                `timestamp_created` BIGINT UNSIGNED NOT NULL,\n                `timestamp_removed` BIGINT UNSIGNED,\n                `hidden` BOOLEAN NOT NULL DEFAULT FALSE,\n\n                FOREIGN KEY(`element_id`) REFERENCES `Element`(`element_id`)\n            );\n            \n            CREATE TABLE IF NOT EXISTS `ElementType` (\n                `element_type_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n                `name` TEXT NOT NULL,\n                `table_id` TEXT NOT NULL\n            );\n\n            CREATE TABLE IF NOT EXISTS `FieldType` (\n                `field_type_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n                `name` TEXT NOT NULL\n            );\n            \n            CREATE TABLE IF NOT EXISTS `ElementTypeField` (\n                `element_type_field_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n                `element_type_id` BIGINT UNSIGNED NOT NULL,\n                `field_type_id` BIGINT UNSIGNED NOT NULL,\n\n                FOREIGN KEY(`element_type_id`) REFERENCES `ElementType`(`element_type_id`),\n                FOREIGN KEY(`field_type_id`) REFERENCES `FeildType`(`field_type_id`)\n            );\n            "
+  },
+  "6a11e1cc3dcce845924ae818c1e432342464157895c4c4713eef0f0a0fad29b3": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n        INSERT OR ROLLBACK INTO `Version` (`version_number`)\n        SELECT MAX(`version_number`) + 1 \n        FROM `Version`;\n        "
+  },
+  "d2fe0a659317111aef552521d8f9b78f7f2b6de35f14f8ea0d207ebc838329aa": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            INSERT INTO `FieldType` (\n                `name`\n            )\n            VALUES (\n                \"PlainText\"\n            ), (\n                \"Timestamp\"\n            ), (\n                \"ReassociateMarkup\"\n            ), (\n                \"Integer\"\n            );\n\n            INSERT INTO `Version` (`version_number`)\n            VALUES (0);\n            "
+  }
+}

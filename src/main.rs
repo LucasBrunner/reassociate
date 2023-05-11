@@ -9,7 +9,7 @@ use db::*;
 const DB_URL: &str = "sqlite://sqlite.db";
 
 async fn async_main() {
-    let Some(db) = db::db(DB_URL).await else {
+    let Some(db) = db::get_db(DB_URL).await else {
         return;
     };
 }
