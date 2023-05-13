@@ -8,3 +8,7 @@ edition = "2021"
 [dependencies]
 serde = "1.0.162"
 polodb_core = "4.3.0"
+tui = "0.19"
+crossterm = "0.25"
+chrono = "*"
+strum = { version = "0.24", features = ["derive"] }
