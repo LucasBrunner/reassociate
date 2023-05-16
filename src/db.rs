@@ -7,18 +7,27 @@ use surrealdb::{dbs::Session, kvs::Datastore, sql::Thing};
 
 use self::upgrade::upgrade_to_version_1;
 
-pub type DB = (Datastore, Session);
+pub struct Db {
+    ds: Datastore,
+    ses: Session,
+}
+
+impl Db {
+    pub fn add_article<'a>(&self, name: &'a str) -> Result<(), ()> {
+        todo!()
+    }
+}
 
 pub struct Record<T> {
     id: Thing,
     data_type: PhantomData<T>,
 }
 
-pub async fn get_db() -> Result<DB, surrealdb::error::Db> {
-    let db: DB = (
-        Datastore::new("memory").await?,
-        Session::for_db("test", "test"),
-    );
+pub async fn get_db() -> Result<Db, surrealdb::error::Db> {
+    let db = Db {
+        ds: Datastore::new("memory").await?,
+        ses: Session::for_db("test", "test"),
+    };
 
     upgrade_to_version_1(&db).await?;
 
@@ -27,6 +36,6 @@ pub async fn get_db() -> Result<DB, surrealdb::error::Db> {
 
 pub mod prelude {
     pub use super::executable::prelude::*;
+    pub use super::Db;
     pub use super::Record;
-    pub use super::DB;
 }

@@ -3,11 +3,9 @@ use crate::{
     FoldResult,
 };
 
-use super::DB;
+use super::Db;
 
-pub async fn upgrade_to_version_1(db: &DB) -> Result<(), surrealdb::error::Db> {
-    let (ds, ses) = db;
-
+pub async fn upgrade_to_version_1(db: &Db) -> Result<(), surrealdb::error::Db> {
     let tables = "
         DEFINE TABLE Article SCHEMAFULL;
         DEFINE TABLE Element SCHEMAFULL;
@@ -87,8 +85,8 @@ pub async fn upgrade_to_version_1(db: &DB) -> Result<(), surrealdb::error::Db> {
         rows.execute(db, None, true).await;
     }
 
-    let table_info = ds
-        .execute("INFO FOR TABLE DataVersion", ses, None, true)
+    let table_info = "INFO FOR TABLE DataVersion"
+        .execute(db, None, true)
         .await
         .unwrap()
         .into_iter()

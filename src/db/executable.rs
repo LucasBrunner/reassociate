@@ -1,19 +1,19 @@
 use async_trait::async_trait;
 
-use crate::DB;
+use crate::Db;
 
 #[async_trait]
 pub trait Executable {
     type Result;
-    async fn execute(self, db: &DB, variables: Option<()>, strict: bool) -> Self::Result;
+    async fn execute(self, db: &Db, variables: Option<()>, strict: bool) -> Self::Result;
 }
 
 #[async_trait]
 impl Executable for &str {
     type Result = Result<Vec<surrealdb::dbs::Response>, surrealdb::error::Db>;
 
-    async fn execute(self, (ds, ses): &DB, variables: Option<()>, strict: bool) -> Self::Result {
-        ds.execute(self, ses, None, strict).await
+    async fn execute(self, db: &Db, variables: Option<()>, strict: bool) -> Self::Result {
+        db.ds.execute(self, &db.ses, None, strict).await
     }
 }
 
@@ -22,7 +22,7 @@ pub trait ExecuteMany<T>
 where
     T: Executable,
 {
-    async fn execute(self, db: &DB, variables: Option<()>, strict: bool) -> Vec<T::Result>;
+    async fn execute(self, db: &Db, variables: Option<()>, strict: bool) -> Vec<T::Result>;
 }
 
 #[async_trait(?Send)]
@@ -33,7 +33,7 @@ where
 {
     async fn execute(
         self,
-        db: &DB,
+        db: &Db,
         variables: Option<()>,
         strict: bool,
     ) -> Vec<<T as Executable>::Result> {

@@ -12,7 +12,7 @@ struct Article {
 }
 
 async fn create_article(
-    (ds, ses): &DB,
+    db: &Db,
     title: &str,
     priority: i32,
 ) -> Result<Record<Article>, surrealdb::error::Db> {
