@@ -1,11 +1,10 @@
-use crate::{
-    db::prelude::{Executable, ExecuteMany},
-    FoldResult,
-};
+use surrealdb::sql;
 
-use super::Db;
+use crate::FoldResult;
 
-pub async fn upgrade_to_version_1(db: &Db) -> Result<(), surrealdb::error::Db> {
+use super::SurrealDb;
+
+pub async fn upgrade_to_version_1(db: &SurrealDb) -> Result<(), surrealdb::error::Db> {
     let tables = "
         DEFINE TABLE Article SCHEMAFULL;
         DEFINE TABLE Element SCHEMAFULL;
@@ -14,7 +13,7 @@ pub async fn upgrade_to_version_1(db: &Db) -> Result<(), surrealdb::error::Db> {
         // DEFINE TABLE DataTypeField SCHEMAFULL;
         ";
 
-    tables.execute(db, None, false).await?;
+    db.query(tables).await;
 
     let article_rows = "
         DEFINE FIELD timestamp_created 
@@ -82,18 +81,11 @@ pub async fn upgrade_to_version_1(db: &Db) -> Result<(), surrealdb::error::Db> {
     ];
 
     for rows in table_definitions {
-        rows.execute(db, None, true).await;
+        db.query(rows).await;
     }
-
-    let table_info = "INFO FOR TABLE DataVersion"
-        .execute(db, None, true)
-        .await
-        .unwrap()
-        .into_iter()
-        .next()
-        .unwrap();
-
-    println!("{:?}", table_info);
+    let mut table_info = db.query("INFO FOR TABLE DataType").await;
+    db.create(resource)
+    println!("{:#?}", table_info.unwrap());
 
     Ok(())
 }

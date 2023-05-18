@@ -2,7 +2,7 @@
 
 mod db;
 
-use async_std::task;
+// use async_std::task;
 use surrealdb::{dbs::Session, kvs::Datastore};
 
 use db::prelude::*;
@@ -12,7 +12,7 @@ struct Article {
 }
 
 async fn create_article(
-    db: &Db,
+    db: &SurrealDb,
     title: &str,
     priority: i32,
 ) -> Result<Record<Article>, surrealdb::error::Db> {
@@ -45,7 +45,9 @@ async fn async_main() -> Result<(), surrealdb::error::Db> {
     Ok(())
 }
 
-fn main() {
-    let result = task::block_on(async_main());
-    println!("{:?}", result);
+#[tokio::main]
+async fn main() {
+    let db = db::get_db().await;
+    // let result = task::block_on(async_main());
+    // println!("{:?}", result);
 }

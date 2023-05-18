@@ -1,41 +1,34 @@
 use std::marker::PhantomData;
 
-pub mod executable;
 mod upgrade;
 
-use surrealdb::{dbs::Session, kvs::Datastore, sql::Thing};
+use surrealdb::{
+    dbs::Session,
+    engine::local::{Db, Mem},
+    kvs::Datastore,
+    sql::Thing,
+    Connection, Surreal,
+};
 
 use self::upgrade::upgrade_to_version_1;
 
-pub struct Db {
-    ds: Datastore,
-    ses: Session,
-}
-
-impl Db {
-    pub fn add_article<'a>(&self, name: &'a str) -> Result<(), ()> {
-        todo!()
-    }
-}
+pub type SurrealDb = Surreal<Db>;
 
 pub struct Record<T> {
     id: Thing,
     data_type: PhantomData<T>,
 }
 
-pub async fn get_db() -> Result<Db, surrealdb::error::Db> {
-    let db = Db {
-        ds: Datastore::new("memory").await?,
-        ses: Session::for_db("test", "test"),
-    };
+pub async fn get_db() -> Result<SurrealDb, surrealdb::error::Db> {
+    let mut surreal = Surreal::new::<Mem>(()).await.unwrap();
+    surreal.use_ns("test").use_db("test").await.unwrap();
 
-    upgrade_to_version_1(&db).await?;
+    upgrade_to_version_1(&surreal).await?;
 
-    Ok(db)
+    Ok(surreal)
 }
 
 pub mod prelude {
-    pub use super::executable::prelude::*;
-    pub use super::Db;
     pub use super::Record;
+    pub use super::SurrealDb;
 }
